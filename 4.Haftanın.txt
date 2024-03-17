@@ -1,0 +1,141 @@
+TCL1
+
+select @@autocommit;
+
+set @@autocommit=0;
+
+use insankaynaklari;
+
+select * from birim;
+update birim set birim_ad="Temizlik İşleri" where birim_no=5;
+commit;
+
+select * from birim;
+start transaction;
+insert into unvan value(4,"mühendis");
+update personel set ad="hasan" where personel_no=12;
+
+insert into birim value (6,"Temizlik İşleri");
+select * from birim;
+delete from unvan where unvan_no=4;
+
+
+
+insert into unvan value(5,"mimar");
+insert into unvan value(6,"şörör");
+savepoint s1; 
+rollback to savepoint s1;
+
+rollback;
+
+
+/*  savepoint s1
+	tablonun içerisine veri ekleyin
+	tablonun içerisinde veri güncelleyin
+    savepoint s2
+    tablonun içerisinden veri silin
+	tablonun içerisinde veri güncelleyin
+    savepoint s3
+    tablonun içerisine veri ekleyin */
+
+
+start transaction;
+savepoint s1;
+select * from personel;
+insert into personel value (18,"büşra","yılmaz",
+"K","1996-12-12",10,"2022-06-03",1,2,8,10000,2000);
+SELECT * FROM PROJE;
+UPDATE proje set proje_ad="xx" where proje_no=200;
+savepoint s2;
+select * from birim;
+delete from birim where birim_no=5;
+select * from unvan;
+update unvan set unvan_ad="mimar" where unvan_no=3;
+savepoint s3;
+select * from birim;
+insert into birim value (6,"Temizlik İşleri");
+rollback to savepoint s2;
+commit;
+
+
+
+
+begin;
+select * from birim;
+insert into birim value (6,"çağrı merkezi");
+savepoint s10;
+delete from birim where birim_no=6;
+
+rollback to savepoint s10;
+commit;
+
+rollback;
+
+TCL2
+use insankaynaklari;
+select * from unvan;
+
+select @@autocommit;
+set @@autocommit=0;
+
+-- start transaction;
+-- begin;
+
+begin work;
+select * from unvan;
+insert into unvan value (4,"mühendis");
+commit;
+
+
+start transaction;
+savepoint s1;
+select * from personel;
+insert into personel value(20,"lale","gül","K",
+"1989-03-06",8,"2021-08-19",1,2,8,7500,2000);
+select * from birim;
+UPDATE birim set birim_ad="Market" where birim_no=6;
+savepoint s2;
+delete from personel where personel_no=20;
+
+rollback to savepoint s2;
+select * from personel;
+commit;
+rollback;
+select * from birim;
+
+/*
+transcation bloğu açın
+herhangi bir tablodan iki adet veri silin
+savepoint koyun
+herhangi bir tobloda ekleme ve güncelleme yapın
+savepointi çağırın
+commit ile bitirin
+*/
+
+start transaction;
+delete from gorevlendirme where personel_no in (15,17);
+delete from personel where unvan_no=1;
+savepoint s1;
+insert into unvan  value (6,"mimar");
+update unvan set unvan_ad="mimar şefi" where unvan_no=6;
+rollback to savepoint s1;
+select * from gorevlendirme;
+rollback;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

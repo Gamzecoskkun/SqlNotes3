@@ -1,0 +1,166 @@
+İNSANKAYNAKLARI SORGU
+
+use insankaynaklari;
+select * from ilce;
+
+insert into il values(01, "ADANA"),
+					(02, "ADIYAMAN"),
+                    (34, "İSTANBUL"), 
+                    (35,"İZMİR"), 
+                    (55,"SAMSUN"), 
+                    (53, "RİZE"), 
+                    (28, "GİRESUN");
+                   
+set foreign_key_checks=0;
+alter table ilce change column ilce_no ilce_no int auto_increment;                    
+set foreign_key_checks=1;
+
+insert into ilce(ilce_ad, il_no) values ("Çukurova",1),
+										("Beykoz",34),
+                                        ("İlkadım",55),
+                                        ("Gölbaşı",2),
+                                        ("Kartal", 34),
+                                        ("Bafra", 55);
+select * from birim;
+insert into birim values (1,"Pazarlama"),
+ (2,"Bilgi İşlem"), (3,"Muhasebe");
+ select * from unvan;
+ insert into unvan values (1,"müdür"),
+ (2,"büro personeli"),(3,"birim şefi");
+ select * from unvan;
+ 
+ Insert into proje values(100,"Optimus","2002-07-16","2020-06-14"),
+                          (200,"Çip","2001-10-14","2026-02-12"),
+                          (300,"40Bacak","2010-03-15","2030-03-10"),
+                          (400,"Bumblebee","2011-05-11","2026-05-11");
+ Select*from proje;
+ Select*from personel;
+ insert into personel values(12,"kamil","yıldız","e","1975-01-13",1,"2020-01-05",1,2,8,10000,5000);
+ insert into personel values(15,"ayşe","kaya","K","1985-05-13",1,"2019-01-06",2,1,8,15000,5000);
+ insert into personel values(10,"mehmet","öztürk","E","1990-06-10",1,"2022-09-05",2,2,8,9000,5000);
+ insert into personel values(16,"ali","öz","E","1980-06-10",1,"2021-09-05",2,2,8,8000,5000);
+
+update personel set cinsiyet='E' where personel_no=12;
+
+select * from gorevlendirme;
+
+insert into gorevlendirme values (1000, 100, 12);
+insert into gorevlendirme values (1001, 200, 12);
+insert into gorevlendirme values (1002, 300, 10),(1003, 200, 15),(1004, 200, 10);
+
+
+select * from personel;
+
+select * from personel where cinsiyet="E";
+select * from personel where cinsiyet="E" and maas>=9000;
+select * from ilce order by ilce_ad desc;
+select ilce.ilce_ad, il.il_ad from ilce inner join il on ilce.il_no=il.il_no;
+
+select il_no , count(*) from ilce group by il_no;
+
+select il.il_ad , count(*) from ilce inner join il on 
+						ilce.il_no=il.il_no group by il.il_ad;
+                        
+ select * from gorevlendirme;
+ 
+select proje.proje_ad,personel.ad,personel.soyad from gorevlendirme g
+inner join proje on g.proje_no= proje.proje_no
+inner join personel on g.personel_no=personel.personel_no;
+
+
+
+
+
+select * from il;
+insert into il values (06,"ANKARA"),(58,"SİVAS"),(61,"TRABZON");
+
+SELECT * FROM İLCE;
+insert into ilce(ilce_ad, il_no) values ("Çankaya",6),
+										("Alibaba",58),
+                                        ("Fatih",34),
+                                        ("Beşikdüzü", 61),
+                                        ("Tonya",61),
+                                        ("Vakfıkebir",61),
+                                        ("Çaykara",61);
+                                        
+select * from personel;                                        
+
+insert into personel values (17,"ali","tamay","E","1967-09-09",10,"2017-10-11",3,1,8,20000,10000);
+
+SELECT * FROM gorevlendirme;
+SELECT * FROM proje;
+
+insert into gorevlendirme values(1005,400,17),(1006,300,17),(1007,300,15);
+
+update proje set planan_bitis_tarihi="2016-05-11" where proje_no=400;
+
+select * from personel;
+
+update personel set ad="mahmut", dogum_yer=9 where personel_no=16;
+
+select proje.proje_ad, personel.ad from gorevlendirme g
+inner join proje on g.proje_no=proje.proje_no
+inner join personel on g.personel_no=personel.personel_no;
+
+select p.proje_ad, count(*) from gorevlendirme g
+inner join proje p on g.proje_no=p.proje_no
+group by p.proje_ad;
+
+select * from ilce order by ilce_ad;
+
+select * from ilce where ilce_ad like "%a";
+
+select * from personel;
+select * from personel where cinsiyet="K" OR maas>=10000;
+
+select * from personel where year(dogum_tarihi)>1980;
+
+-- personelin adı, soyadı, birim, unvanı, maas
+
+select ad,soyad,birim.birim_ad,unvan.unvan_ad,maas from personel
+inner join birim on personel.birim_no=birim.birim_no
+inner join unvan on personel.unvan_no=unvan.unvan_no
+where maas>10000;
+
+DCL1
+select host, user from mysql.user;
+
+create user 'beykoz'@'localhost' identified by '123456'; 
+create user 'ali'@'%' identified by '123456';
+
+select * from mysql.user;
+
+show grants for 'beykoz'@'localhost';
+
+grant select on insankaynaklari.* to 'beykoz'@'localhost';
+grant insert, delete on insankaynaklari.* to 'beykoz'@'localhost';
+
+revoke delete on insankaynaklari.* from 'beykoz'@'localhost';
+
+DCL2
+select host,user from mysql.user;
+create user 'ayse'@'localhost' identified by '123456';
+show grants for 'ayse'@'localhost' ;
+show grants for 'root'@'localhost' ;
+
+grant select on insankaynaklari.* to 'ayse'@'localhost'; 
+grant insert, delete,create,update on insankaynaklari.* to 
+'ayse'@'localhost';
+
+select * from mysql.user;
+
+show grants for 'ali'@'%';
+
+grant all on *.* to 'ali'@'%' with grant option;
+
+select * from birim;
+
+revoke insert on insankaynaklari.* from 'ayse'@'localhost';
+revoke all privileges on *.* from 'ali'@'%';
+
+drop user 'ali'@'%';
+
+
+select * from mysql.user;
+
+

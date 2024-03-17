@@ -1,0 +1,187 @@
+Trigger 1
+use market;
+create table urun_log(
+id int auto_increment primary key,
+y_urun varchar(100),
+e_urun varchar(100));
+select * from urun_log;
+
+
+delimiter //
+create trigger urun_ekle before insert
+on urun
+for each row
+begin
+	insert into urun_log(y_urun) 
+    values(new.u_ad);
+end //
+delimiter ;
+select * from urun;
+insert into urun value(109,"domates",1);
+select * from urun_log;
+
+delimiter //
+create trigger urun_guncelle after update
+on urun
+for each row
+begin
+	insert into urun_log (y_urun,e_urun)
+    values(new.u_ad,old.u_ad);
+
+end //
+delimiter ;
+
+update urun set u_ad="tuvalet kağıdı" 
+where u_id=109;
+select * from urun_log;
+
+
+select current_date();
+select current_time();
+select current_timestamp();
+select current_user();
+
+alter table urun_log add column tarih date;
+alter table urun_log add column saat time;
+alter table urun_log add column kulanıcı varchar(100);
+
+
+
+delimiter //
+create trigger urun_sil before delete
+on urun
+for each row
+begin
+	insert into urun_log(e_urun,tarih,saat,kulanıcı)
+    values(old.u_ad,current_date(),current_time(),current_user());
+end //
+delimiter ;
+
+select * from urun;
+select * from urun_log;
+delete from urun where u_id=109;
+
+select * from marka_urun;
+
+
+-- skt'si sistem tarihinden az olanı marka_urun tablosundan sil
+
+select current_date();
+
+select * from marka_urun;
+delete from marka_urun where mu_id in (
+select mu_id from marka_urun where DATEDIFF(skt,current_date())<0);
+
+
+delimiter //
+create trigger urun_sil before insert
+on marka_urun
+for each row
+begin
+	declare tarih int;
+    select DATEDIFF(skt,current_date()) into tarih from marka_urun;
+    if tarih<0 then
+		insert into marka_urun_log values
+        (new.urun, new.marka, current_date(),new.skt);
+        delete from marka_urun where mu_id in (
+		select mu_id from marka_urun where tarih<0);
+end //
+delimiter ;
+
+
+Triger 2
+use market;
+create table urun_log(
+id int auto_increment primary key,
+yeni_urun varchar(100),
+eski_urun varchar(100),
+islem_turu varchar(100));
+
+delimiter //
+create trigger u_ekle before insert
+on urun
+for each row
+begin
+	insert into urun_log(yeni_urun,islem_turu)
+    values (new.u_ad,"INSERT");
+end //
+delimiter ;
+
+select * from urun_log;
+select * from urun;
+
+insert into urun value(110,"domates",1);
+
+drop trigger urun_sil;
+
+delimiter //
+create trigger u_guncelle after update 
+on urun
+for each row
+begin
+	insert into urun_log(yeni_urun,eski_urun,islem_turu)
+    values (new.u_ad,old.u_ad,"UPDATE");
+end //
+delimiter ;
+
+update urun set u_ad="sabun" where u_id=110;
+select * from urun_log;
+
+select current_date();
+select current_time();
+select current_user();
+select database();
+select version();
+
+alter table urun_log add column tarih date;
+alter table urun_log add column saat time;
+alter table urun_log add column kullanıcı varchar(100);
+alter table urun_log add column veritabanı varchar(100);
+alter table urun_log add column versiyon varchar(100);
+select * from urun_log;
+
+
+delimiter //
+create trigger u_sil after delete
+on urun
+for each row
+begin
+	insert into urun_log(eski_urun,islem_turu,tarih,saat,
+    kullanıcı,veritabanı,versiyon) values
+    (old.u_ad,"DELETE",current_date(),current_time(),current_user(),
+    database(),version());
+    
+end //
+delimiter ;
+
+delete from urun where u_id=110;
+select * from urun_log;
+
+drop trigger u_ekle;
+
+show triggers;
+
+
+select * from marka_urun;
+
+
+/* skt mevcut taihime 100 gün yaklaşırsa fiyarı 5 tl azalt
+*/
+drop trigger fiyat_guncelle;
+delimiter //
+create trigger fiyat_guncelle after insert
+on marka_urun
+for each row
+begin
+declare id int;
+select mu_id into id from marka_urun where 
+	datediff(skt,current_date())>0 and
+				datediff(skt,current_date())<100 and
+                mu_id=new.mu_id;
+                
+update marka_urun set fiyat=fiyat-5 where mu_id=id;     
+           
+end //
+delimiter ;
+select * from marka_urun;
+insert into marka_urun value (1,102,14,"2022-11-23",100);

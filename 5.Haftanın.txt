@@ -1,0 +1,41 @@
+SAKLI YORDAMLAR
+
+use insankaynaklari;
+select * from personel;
+select * from proje;
+select * from gorevlendirme;
+
+delimiter //
+drop procedure if exists g_ekle;
+create procedure g_ekle(in g_no int,
+pr_no int,pe_no int)
+begin
+	insert into gorevlendirme values(
+    g_no,pr_no,pe_no);
+
+end //
+delimiter ;
+call g_ekle(1010,200,20);
+select * from gorevlendirme;
+
+delimiter //
+create procedure g_ekle2(in g_no int,
+in pr_ad varchar(100), in pe_ad varchar(100),
+in pe_soyad varchar(100))
+begin
+	insert into gorevlendirme values(
+    g_no,(select proje_no from proje
+    where proje_ad=pr_ad), 
+    (select personel_no from personel
+    where ad=pe_ad and soyad=pe_soyad));
+end //
+delimiter ; 
+call g_ekle2(1011,"Optimus","mehmet","öztürk");
+
+
+show procedure status where name like "g%";
+
+
+
+
+
